@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Davi de Sousa — QA Engineer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e0d;
+      --surface: #101614;
+      --border: #1e2b27;
+      --green: #00e887;
+      --green-dim: #00c46e;
+      --green-faint: rgba(0,232,135,0.07);
+      --text: #e8f0ee;
+      --muted: #6b8a80;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    /* ─── CURSOR ─────────────────────────────────── */
+    .cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--green); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, width .2s, height .2s, opacity .2s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid var(--green); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .15s ease, width .2s, height .2s, opacity .3s;
+      opacity: .4;
+    }
+
+    /* ─── NAV ────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid transparent;
+      transition: background .3s, border-color .3s, backdrop-filter .3s;
+    }
+    nav.scrolled {
+      background: rgba(10,14,13,.85);
+      border-color: var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--mono); font-size: .85rem; color: var(--green);
+      letter-spacing: .05em;
+    }
+    .nav-logo span { color: var(--muted); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--mono); font-size: .75rem; color: var(--muted);
+      text-decoration: none; letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--green); }
+
+    /* ─── HERO ───────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 0 3rem;
+      position: relative; overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+      opacity: .5;
+    }
+
+    .hero-glow {
+      position: absolute; top: -10%; right: -10%;
+      width: 60vw; height: 60vw;
+      background: radial-gradient(circle, rgba(0,232,135,.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute; bottom: -20%; left: -5%;
+      width: 40vw; height: 40vw;
+      background: radial-gradient(circle, rgba(0,200,110,.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; max-width: 900px; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-family: var(--mono); font-size: .75rem; color: var(--green);
+      border: 1px solid rgba(0,232,135,.3); border-radius: 2px;
+      padding: .3rem .8rem; margin-bottom: 2rem;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-tag::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--green); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; transform: scale(1); }
+      50% { opacity:.4; transform: scale(.8); }
+    }
+
+    h1 {
+      font-family: var(--sans); font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800; line-height: 1;
+      letter-spacing: -.02em;
+      animation: fadeUp .6s .1s ease both;
+    }
+    h1 .accent { color: var(--green); }
+    h1 .line2 { color: var(--muted); }
+
+    .hero-sub {
+      margin-top: 1.5rem; max-width: 580px;
+      font-size: 1.05rem; color: var(--muted); line-height: 1.7;
+      animation: fadeUp .6s .2s ease both;
+    }
+
+    .hero-badges {
+      display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2rem;
+      animation: fadeUp .6s .3s ease both;
+    }
+    .badge {
+      font-family: var(--mono); font-size: .7rem; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 2px;
+      padding: .3rem .7rem; background: var(--surface);
+      transition: border-color .2s, color .2s;
+    }
+    .badge:hover { border-color: var(--green); color: var(--green); }
+
+    .hero-cta {
+      display: flex; gap: 1rem; margin-top: 2.5rem;
+      animation: fadeUp .6s .4s ease both;
+    }
+    .btn {
+      font-family: var(--mono); font-size: .78rem; letter-spacing: .06em;
+      padding: .75rem 1.6rem; border-radius: 2px;
+      cursor: pointer; text-decoration: none; transition: all .2s; display: inline-block;
+    }
+    .btn-primary {
+      background: var(--green); color: #000; border: none; font-weight: 700;
+    }
+    .btn-primary:hover { background: #fff; }
+    .btn-outline {
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 5rem;
+      animation: fadeUp .6s .5s ease both;
+    }
+    .stat-val {
+      font-family: var(--mono); font-size: 2.2rem; color: var(--green); line-height: 1;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(20px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+
+    /* ─── SECTIONS ───────────────────────────────── */
+    section { padding: 6rem 3rem; max-width: 1200px; margin: 0 auto; }
+
+    .section-label {
+      font-family: var(--mono); font-size: .72rem; color: var(--green);
+      letter-spacing: .15em; text-transform: uppercase;
+      display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem;
+    }
+    .section-label::after {
+      content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--border);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.1;
+      letter-spacing: -.02em; margin-bottom: 3rem;
+    }
+
+    /* ─── ABOUT ──────────────────────────────────── */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
+    }
+    .about-text { font-size: 1rem; color: var(--muted); line-height: 1.8; }
+    .about-text p + p { margin-top: 1rem; }
+    .about-text strong { color: var(--text); }
+
+    .about-skills-title {
+      font-family: var(--mono); font-size: .75rem; color: var(--green);
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .skill-group { margin-bottom: 2rem; }
+    .skill-group-label {
+      font-family: var(--mono); font-size: .7rem; color: var(--muted);
+      margin-bottom: .6rem; letter-spacing: .05em;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .skill-tag {
+      font-family: var(--mono); font-size: .7rem;
+      padding: .25rem .6rem; border: 1px solid var(--border);
+      border-radius: 2px; color: var(--text); background: var(--surface);
+    }
+    .skill-tag.highlight { border-color: rgba(0,232,135,.4); color: var(--green); }
+
+    /* ─── EXPERIENCE ─────────────────────────────── */
+    #experience { border-top: 1px solid var(--border); }
+
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative; padding: 2rem 0 3rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -4.5px; top: 2.25rem;
+      width: 9px; height: 9px; background: var(--green);
+      border-radius: 50%; box-shadow: 0 0 12px var(--green);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+
+    .tl-company {
+      font-family: var(--mono); font-size: .75rem; color: var(--green); margin-bottom: .4rem;
+    }
+    .tl-role {
+      font-size: 1.4rem; font-weight: 700; margin-bottom: .4rem;
+    }
+    .tl-meta {
+      font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-bottom: 1.2rem;
+    }
+    .tl-desc { color: var(--muted); line-height: 1.7; font-size: .95rem; }
+
+    .achievements { margin-top: 1.2rem; display: flex; flex-direction: column; gap: .7rem; }
+    .ach-item {
+      display: flex; gap: .8rem; align-items: flex-start;
+      padding: .8rem 1rem; border: 1px solid var(--border); border-radius: 2px;
+      background: var(--surface); transition: border-color .2s;
+    }
+    .ach-item:hover { border-color: rgba(0,232,135,.3); }
+    .ach-icon { color: var(--green); font-size: .85rem; margin-top: .1rem; flex-shrink: 0; font-family: var(--mono); }
+    .ach-text { font-size: .88rem; color: var(--muted); line-height: 1.5; }
+    .ach-text strong { color: var(--text); }
+
+    /* ─── PROJECTS ───────────────────────────────── */
+    #projects { border-top: 1px solid var(--border); }
+
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .project-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 2px; padding: 1.8rem;
+      transition: border-color .25s, transform .25s;
+      cursor: default;
+    }
+    .project-card:hover { border-color: var(--green); transform: translateY(-4px); }
+    .project-tag {
+      font-family: var(--mono); font-size: .65rem; color: var(--green); margin-bottom: .8rem;
+    }
+    .project-name { font-size: 1.1rem; font-weight: 700; margin-bottom: .6rem; }
+    .project-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+    .project-stack { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
+    .project-tech {
+      font-family: var(--mono); font-size: .65rem; color: var(--muted);
+      border: 1px solid var(--border); padding: .2rem .5rem; border-radius: 2px;
+    }
+
+    /* ─── EDUCATION & CERTS ──────────────────────── */
+    #education { border-top: 1px solid var(--border); }
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .edu-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 2px; padding: 1.6rem;
+      transition: border-color .2s;
+    }
+    .edu-card:hover { border-color: rgba(0,232,135,.3); }
+    .edu-school { font-family: var(--mono); font-size: .72rem; color: var(--green); margin-bottom: .4rem; }
+    .edu-degree { font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+    .edu-period { font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+
+    .certs-list { margin-top: 3rem; }
+    .certs-title { font-family: var(--mono); font-size: .75rem; color: var(--green); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1rem; }
+    .cert-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .8rem 1rem; border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .cert-item:hover { background: var(--green-faint); }
+    .cert-bullet { width: 6px; height: 6px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+    .cert-name { font-size: .9rem; color: var(--text); }
+
+    /* ─── CONTACT ────────────────────────────────── */
+    #contact {
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .contact-inner { max-width: 600px; margin: 0 auto; }
+    #contact h2 { margin-bottom: 1rem; }
+    .contact-sub { color: var(--muted); font-size: 1rem; line-height: 1.7; margin-bottom: 2.5rem; }
+
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .contact-link {
+      display: flex; align-items: center; gap: .6rem;
+      font-family: var(--mono); font-size: .78rem; color: var(--muted);
+      border: 1px solid var(--border); padding: .7rem 1.2rem; border-radius: 2px;
+      text-decoration: none; background: var(--surface);
+      transition: border-color .2s, color .2s;
+    }
+    .contact-link:hover { border-color: var(--green); color: var(--green); }
+    .contact-link svg { width: 16px; height: 16px; }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono); font-size: .7rem; color: var(--muted);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      #hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .about-grid, .edu-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2.8rem; }
+      .hero-stats { gap: 2rem; }
+      footer { flex-direction: column; gap: .5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav id="nav">
+  <div class="nav-logo"><span>// </span>davi.sousa</div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#education">education</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Disponível para novas oportunidades</div>
+    <h1>
+      Davi de<br>
+      <span class="accent">Sousa.</span><br>
+      <span class="line2">QA Engineer</span>
+    </h1>
+    <p class="hero-sub">
+      CTFL · SDET · JavaScript · Kotlin — especialista em acelerar entregas através de automação inteligente e IA, com resultados comprovados em qualidade de software.
+    </p>
+    <div class="hero-badges">
+      <span class="badge">Appium</span><span class="badge">Cypress</span>
+      <span class="badge">k6</span><span class="badge">JMeter</span>
+      <span class="badge">RestAssured</span><span class="badge">Robot Framework</span>
+      <span class="badge">Python</span><span class="badge">CI/CD</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#contact" class="btn btn-primary">Entrar em Contato</a>
+      <a href="#experience" class="btn btn-outline">Ver Experiência</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val">80%</div>
+        <div class="stat-label">Redução no esforço<br>de documentação</div>
+      </div>
+      <div>
+        <div class="stat-val">30%</div>
+        <div class="stat-label">Aumento na triagem<br>de bugs</div>
+      </div>
+      <div>
+        <div class="stat-val">3+</div>
+        <div class="stat-label">Anos de experiência<br>em qualidade</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="section-label">01 — Sobre</div>
+  <div class="about-grid reveal">
+    <div>
+      <h2>Qualidade como<br><span style="color:var(--green)">motor de eficiência.</span></h2>
+      <div class="about-text">
+        <p>Sou <strong>Engenheiro Eletricista</strong> com foco em <strong>Engenharia de Qualidade de Software</strong>. Minha trajetória começou no diagnóstico de hardware na Foxconn, onde desenvolvi pensamento analítico profundo sobre falhas — uma habilidade que hoje aplico diretamente no QA.</p>
+        <p>Na <strong>SiDi</strong>, trabalho na engenharia de qualidade de sistemas de alta criticidade, com foco direto na <strong>confiabilidade de fluxos financeiros</strong> e na escalabilidade de infraestrutura, incluindo sistemas de Open Finance e Android Automotive.</p>
+        <p>Acredito que qualidade não é somente encontrar bugs — é construir <strong>sistemas de automação que funcionam como um acelerador de produto</strong>.</p>
+      </div>
+    </div>
+    <div>
+      <div class="about-skills-title">Stack Técnica</div>
+      <div class="skill-group">
+        <div class="skill-group-label">// mobile & web testing</div>
+        <div class="skill-tags">
+          <span class="skill-tag highlight">Appium</span>
+          <span class="skill-tag highlight">Cypress</span>
+          <span class="skill-tag">Robot Framework</span>
+          <span class="skill-tag">Android/AOSP</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">// performance</div>
+        <div class="skill-tags">
+          <span class="skill-tag highlight">k6</span>
+          <span class="skill-tag highlight">JMeter</span>
+          <span class="skill-tag">SLAs/SLOs</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">// api & ci/cd</div>
+        <div class="skill-tags">
+          <span class="skill-tag highlight">RestAssured</span>
+          <span class="skill-tag">Postman</span>
+          <span class="skill-tag">CI/CD Pipelines</span>
+          <span class="skill-tag">Java</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">// automação & ia</div>
+        <div class="skill-tags">
+          <span class="skill-tag highlight">Python</span>
+          <span class="skill-tag">LLMs / Ollama</span>
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Pandas</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-label">// gestão & metodologia</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Jira / Zephyr</span>
+          <span class="skill-tag">Scrum</span>
+          <span class="skill-tag">Kanban</span>
+          <span class="skill-tag">CTFL (ISTQB)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+  <div class="section-label">02 — Experiência</div>
+  <h2>Onde trabalhei<br><span style="color:var(--green)">e o que construí.</span></h2>
+
+  <div class="timeline">
+    <!-- SiDi JR -->
+    <div class="timeline-item reveal">
+      <div class="tl-company">SiDi</div>
+      <div class="tl-role">Desenvolvedor de Testes JR</div>
+      <div class="tl-meta">ago 2025 — presente · Manaus, AM</div>
+      <div class="tl-desc">Engenharia de qualidade em sistemas de alta criticidade com foco em confiabilidade de fluxos financeiros e Open Finance.</div>
+      <div class="achievements">
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>Segurança em Pagamentos:</strong> Garantia de integridade de fluxos com Open Finance (front-end e back-end), validando autorização, idempotência e resiliência de rede.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>Arquitetura k6:</strong> Projetei e implementei do zero um projeto de testes de performance com módulos reutilizáveis, parametrização de ambientes e suítes smoke, load e spike.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>APIs & CI/CD:</strong> Migração e automação de suítes de API do Postman para RestAssured (Java), integradas diretamente ao pipeline de CI.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>Mobile Automotive:</strong> Automação com Appium para jornadas críticas de pagamento em Android e Android Automotive.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SiDi QA -->
+    <div class="timeline-item reveal">
+      <div class="tl-company">SiDi</div>
+      <div class="tl-role">Técnico de Garantia da Qualidade</div>
+      <div class="tl-meta">nov 2024 — ago 2025 · Manaus, AM</div>
+      <div class="tl-desc">Evoluí de executor a desenvolvedor de soluções internas, aplicando IA e frameworks modernos para eliminar gargalos operacionais em projetos de escala global.</div>
+      <div class="achievements">
+        <div class="ach-item">
+          <div class="ach-icon">↑</div>
+          <div class="ach-text"><strong>IA para QA:</strong> Ferramenta em Python (Ollama + Code Llama) que gera casos de teste a partir do código-fonte — <strong>redução de 80% no esforço de documentação</strong>.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">↑</div>
+          <div class="ach-text"><strong>Otimização de Processos:</strong> Automação com React + Node.js para registro de bugs — <strong>aumento de ~30% no throughput de QA</strong>.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>E2E Mobile:</strong> Coordenação de testes em Android e Android Automotive com suítes automatizadas em Appium.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>ML/NLP:</strong> Atuação em squads com times internacionais de Machine Learning, validando acurácia de modelos e estabilidade de versões beta.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foxconn -->
+    <div class="timeline-item reveal">
+      <div class="tl-company">Foxconn</div>
+      <div class="tl-role">Técnico de Diagnóstico</div>
+      <div class="tl-meta">ago 2022 — mar 2024 · Manaus, AM</div>
+      <div class="tl-desc">Diagnóstico de hardware e validação de software em linha de frente da qualidade, garantindo entregas com falhas zero.</div>
+      <div class="achievements">
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>Debug Profundo:</strong> Depuração de falhas em sistemas eletrônicos de marcas líderes (Acer, Asus, TP-Link) com foco em causa raiz.</div>
+        </div>
+        <div class="ach-item">
+          <div class="ach-icon">→</div>
+          <div class="ach-text"><strong>Gestão de Defeitos:</strong> Abertura de bugs e validação rigorosa de correções em sistemas de suporte à produção.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="section-label">03 — Projetos</div>
+  <h2>Soluções que<br><span style="color:var(--green)">construí do zero.</span></h2>
+
+  <div class="projects-grid reveal">
+    <div class="project-card">
+      <div class="project-tag">// automação · ia</div>
+      <div class="project-name">Test Case Generator</div>
+      <div class="project-desc">Ferramenta que lê o código-fonte e gera automaticamente casos de teste manuais usando LLMs (Ollama + Code Llama), reduzindo 80% do esforço de documentação.</div>
+      <div class="project-stack">
+        <span class="project-tech">Python</span>
+        <span class="project-tech">Ollama</span>
+        <span class="project-tech">Code Llama</span>
+        <span class="project-tech">Pandas</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-tag">// performance · k6</div>
+      <div class="project-name">Performance Test Suite</div>
+      <div class="project-desc">Projeto de testes de performance com k6 construído do zero: módulos reutilizáveis, parametrização de ambientes e suítes completas (smoke, load, spike, stress).</div>
+      <div class="project-stack">
+        <span class="project-tech">k6</span>
+        <span class="project-tech">JavaScript</span>
+        <span class="project-tech">CI/CD</span>
+        <span class="project-tech">SLAs</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-tag">// fullstack · processo</div>
+      <div class="project-name">Bug Tracker Automation</div>
+      <div class="project-desc">Substituição de fluxo manual de registro de bugs por automação com React e Node.js, resultando em ~30% de aumento no throughput da equipe de QA.</div>
+      <div class="project-stack">
+        <span class="project-tech">React</span>
+        <span class="project-tech">Node.js</span>
+        <span class="project-tech">Jira API</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-tag">// api · java</div>
+      <div class="project-name">API Test Migration</div>
+      <div class="project-desc">Migração completa das suítes de teste de API do Postman para RestAssured (Java), garantindo validações de contrato integradas ao pipeline de CI.</div>
+      <div class="project-stack">
+        <span class="project-tech">RestAssured</span>
+        <span class="project-tech">Java</span>
+        <span class="project-tech">CI/CD</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-tag">// mobile · android</div>
+      <div class="project-name">Automotive E2E Suite</div>
+      <div class="project-desc">Cobertura de testes E2E em Android e Android Automotive com Appium, incluindo sistemas embarcados e dispositivos reais com múltiplas variantes de OS.</div>
+      <div class="project-stack">
+        <span class="project-tech">Appium</span>
+        <span class="project-tech">Android</span>
+        <span class="project-tech">AOSP</span>
+        <span class="project-tech">Kotlin</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-tag">// github · portfólio</div>
+      <div class="project-name">Ver Mais no GitHub</div>
+      <div class="project-desc">Acesse o repositório no GitHub para ver todos os projetos, contribuições e código aberto desenvolvidos ao longo da carreira.</div>
+      <div class="project-stack">
+        <span class="project-tech"><a href="https://github.com/Davithesousa" style="color:inherit;text-decoration:none;">→ github.com/Davithesousa</a></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Education -->
+<section id="education">
+  <div class="section-label">04 — Formação</div>
+  <h2>Base acadêmica e<br><span style="color:var(--green)">certificações.</span></h2>
+
+  <div class="edu-grid reveal">
+    <div class="edu-card">
+      <div class="edu-school">Centro Universitário Fametro</div>
+      <div class="edu-degree">Bacharelado em Engenharia Elétrica</div>
+      <div class="edu-period">ago 2020 — jun 2025</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-school">IFAM — Instituto Federal do Amazonas</div>
+      <div class="edu-degree">Técnico Integrado em Eletrônica</div>
+      <div class="edu-period">fev 2017 — dez 2019</div>
+    </div>
+  </div>
+
+  <div class="certs-list reveal">
+    <div class="certs-title">// certificações</div>
+    <div class="cert-item"><div class="cert-bullet"></div><div class="cert-name">ISTQB® CTFL — Foundation Level</div></div>
+    <div class="cert-item"><div class="cert-bullet"></div><div class="cert-name">Cypress — Modern Automation Testing from Scratch + Frameworks</div></div>
+    <div class="cert-item"><div class="cert-bullet"></div><div class="cert-name">EF SET English Certificate 63/100 — C1 Advanced</div></div>
+    <div class="cert-item"><div class="cert-bullet"></div><div class="cert-name">ChatGPT para Python + Projetos Reais com IA</div></div>
+    <div class="cert-item"><div class="cert-bullet"></div><div class="cert-name">Visual Embedded Android (AOSP) with Drawings and Practice</div></div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="section-label" style="justify-content:center;">05 — Contato</div>
+  <div class="contact-inner reveal">
+    <h2>Vamos<br><span style="color:var(--green)">conversar.</span></h2>
+    <p class="contact-sub">
+      Estou aberto a novas oportunidades em QA Engineering, automação de testes e engenharia de performance. Fale comigo por qualquer um dos canais abaixo.
+    </p>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:davialvessousaa@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        davialvessousaa@gmail.com
+      </a>
+      <a class="contact-link" href="https://www.linkedin.com/in/davialvessousaa" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a class="contact-link" href="https://github.com/Davithesousa" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+        GitHub
+      </a>
+      <a class="contact-link" href="tel:92999947464">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.72A2 2 0 012.18 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8a16 16 0 006.07 6.07l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+        (92) 9 9994-7464
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 Davi de Sousa</span>
+  <span style="color:var(--green);">// QA Engineer · CTFL · SDET</span>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * .12; ry += (my - ry) * .12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>
